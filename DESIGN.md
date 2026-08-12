@@ -1,0 +1,130 @@
+# Kubik — design notes
+
+The "why" behind the pedagogy and the architecture. Implementation detail
+lives in the code; this is the reasoning that is not obvious from reading it.
+
+---
+
+## Where the pedagogy came from
+
+Kubik started as a teardown of four commercial smart-cube apps. The full
+findings are in [`docs/teardown.md`](docs/teardown.md); what mattered for the
+design was that both vendors had independently converged on the same core
+idea, and both had buried it.
+
+**GoCube's `Particula.Learn` is a condition interpreter over live cube state**,
+not a video player. It carries typed conditions — `ConditionCubeState`,
+`ConditionMatchingFaces`, `ConditionSelectionInPlace`,
+`ConditionYellowLayerRotationDirection` — plus a `CubeOrientationChecker` that
+verifies the learner is *holding the cube correctly* before a step begins. Its
+audio layer has a `badMoveAudioClip`: wrong turns get immediate non-verbal
+feedback, because the learner's eyes are on the cube, not the screen.
+
+**CubeStation's lesson engine is one data structure**: a 54-entry facelet mask
+where `-1` means "don't care" and `0..5` is a required colour, plus the
+orientation the cube must be held in. Entry conditions, success conditions,
+quiz diagrams and algorithm recognition all use that single representation.
+Its tip counts are the interesting part — 20 tips on step 1, **92 on "Base
+Corners"** — which is a direct measurement of where learners get stuck.
+
+Three devices were worth taking:
+
+- **Quiz before algorithm.** Almost every GoCube step asks the learner to
+  predict before telling them what to do, and a wrong answer gets a *specific*
+  correction ("check the centre pieces"), never "try again".
+- **Orientation gates.** Hints are expressed relative to the hands, not the
+  model. CubeStation stores `move` and `moveUpFront` separately for exactly
+  this reason: the same physical turn has a different name depending on grip.
+- **Daisy first.** Both teach the white cross via the daisy, because it is
+  measurably easier than building the cross directly.
+
+And what not to take: both apps hard-require an account and a physical cube to
+get past first launch (`First_login_requires_a_GoCube`), and bury the course
+under a store, a battle pass and ranked multiplayer.
+
+## Three decisions that shaped the code
+
+### The first layer is D
+
+White on the bottom, yellow on top — how every beginner tutorial holds the
+cube. This looks like a trivial convention choice and is not.
+
+The first implementation put white on U, which meant the last layer was D,
+which meant every textbook algorithm had to be mirrored through a `z2`
+relabelling. The lesson would have taught `R U R' U'` while the solver emitted
+`F D F' D'`. Flipping the frame deleted the mirror entirely, and a test now
+asserts the taught algorithms are character-for-character what the solver
+emits and what the hint button says.
+
+### Lesson goals are derived, not written
+
+A lesson names a solver stage (`cross`, `ll-corners-permute`). The goal
+picture the learner sees and the check that unlocks the next card are both
+generated from that stage's predicate. A lesson therefore *cannot* disagree
+with the solver about what "white cross" means — the class of bug where the
+tutorial and the checker drift apart is unrepresentable.
+
+### A 2×2 is a 3×3's corners
+
+`Cube2` shares the corner move tables, and the 2×2 solver reuses the same
+three corner stages the 3×3 uses: first layer via the right-hand algorithm,
+orientation via Sune, permutation via the A-perm. The renderer, curriculum
+engine and timer take a size rather than forking.
+
+The first attempt at this was wrong in an instructive way: I assumed a 2×2
+could be packed as "a 3×3 with edges pinned solved" and reuse `solve()`
+untouched. It failed 311 of 600 scrambles, because the corner insertions churn
+the edges, so the pinned edges become fiction and the solver chases them into
+unsolvable states. The fix was corner-only predicates, not a pinned state.
+
+The usual worry about a 2×2 — no centres, so "solved" needs a reference — does
+not arise. The frame is the cube's own body, which is what a smart cube
+reports against and what the on-screen cube displays.
+
+## Why the solver is layer-by-layer
+
+CubeStation ships two solvers: a Kociemba two-phase `cs::Search` and a
+separate `cs::HumanSolverLBL`. That split is the whole argument. A 20-move
+two-phase solution is optimal and unexplainable; it cannot teach. Kubik's
+solver produces ~126 moves for a 3×3 and ~48 for a 2×2 — squarely in the
+normal beginner band — and every step carries the stage it belongs to and what
+it achieves.
+
+Output is run through a cancellation pass (`R R` → `R2`, `R R'` → nothing)
+before display, mirroring CubeStation's `mergeRepetedFormula`.
+
+## Smart cubes: moves are the contract
+
+Drivers are only required to emit **moves**. Absolute state is optional.
+
+Every supported cube reports its turns reliably; the encodings for absolute
+state vary far more, and one generation's is still undecoded. Making moves the
+contract means a partially-understood protocol is still fully useful: the
+session seeds its model from an explicit "my cube is solved" sync — which is
+what GoCube's own app does (`Cube must be in a solved state to start`) — and
+tracks from there.
+
+Bluetooth is spoken to BlueZ over Gio's D-Bus stack rather than `bleak`. That
+keeps everything on the GLib main loop with no asyncio bridge and no worker
+thread, and it is the reason the app has no third-party Python dependencies at
+all. AES-128 for the GAN cubes is implemented in-tree for the same reason: a
+Rust toolchain in the Flatpak build sandbox is a steep price for one block
+cipher over 20-byte packets.
+
+## What hardware changed
+
+GAN Gen4 was decoded against a real GAN i Carry 4. Four things were wrong
+beforehand that no amount of static analysis would have caught, and they are
+worth remembering as a class:
+
+1. `fff6` notifies and `fff5` takes writes — the reverse of the assumption.
+2. The cipher uses key index 0, the *Gen2* key pair, not the index 1
+   documented for that generation.
+3. Packets must be ordered by the cube's millisecond clock, not its serial:
+   the history replayed on connect carries serials that collide with turns
+   still to come, because the serial wraps inside a session.
+4. The cube advertises **no service UUIDs at all**, so a UUID-filtered scan
+   only ever finds cubes already in BlueZ's cache.
+
+The last one is the reason `Central.start_discovery` deliberately does not
+filter, and matching happens on the advertised name instead.

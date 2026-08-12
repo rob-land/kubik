@@ -1,0 +1,47 @@
+{
+  "app-id": "land.rob.kubik",
+  "runtime": "org.gnome.Platform",
+  "runtime-version": "50",
+  "sdk": "org.gnome.Sdk",
+  "command": "kubik",
+  "finish-args": [
+    "--share=ipc",
+    "--socket=fallback-x11",
+    "--socket=wayland",
+    "--device=dri",
+    "--system-talk-name=org.bluez"
+  ],
+  "cleanup": [
+    "/include",
+    "/lib/pkgconfig",
+    "/man",
+    "/share/doc",
+    "/share/gtk-doc",
+    "*.la",
+    "*.a"
+  ],
+  "modules": [
+    {
+      "name": "blueprint-compiler",
+      "buildsystem": "meson",
+      "cleanup": ["*"],
+      "sources": [
+        {
+          "type": "git",
+          "url": "https://gitlab.gnome.org/jwestman/blueprint-compiler.git",
+          "tag": "v0.16.0"
+        }
+      ]
+    },
+    {
+      "name": "kubik",
+      "buildsystem": "meson",
+      "sources": [
+        {
+          "type": "dir",
+          "path": "../.."
+        }
+      ]
+    }
+  ]
+}

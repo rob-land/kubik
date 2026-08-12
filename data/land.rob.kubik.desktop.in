@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Kubik
+GenericName=Cube Trainer
+Comment=Learn to solve the Rubik's cube, with or without a smart cube
+Exec=kubik
+Icon=land.rob.kubik
+Terminal=false
+Type=Application
+Categories=Game;LogicGame;
+Keywords=cube;rubik;speedcubing;puzzle;bluetooth;smartcube;
+StartupNotify=true

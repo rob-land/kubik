@@ -1,0 +1,37 @@
+.timer-display {
+  font-size: 68px;
+  font-weight: 300;
+  font-feature-settings: "tnum";
+  padding: 8px 0;
+}
+
+.timer-display.inspecting {
+  color: @warning_color;
+}
+
+.scramble {
+  font-family: monospace;
+  font-size: 16px;
+  letter-spacing: 0.06em;
+  padding: 4px 8px;
+}
+
+.algorithm-display {
+  font-family: monospace;
+  letter-spacing: 0.08em;
+}
+
+.move-button {
+  font-family: monospace;
+  font-size: 17px;
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.numeric {
+  font-feature-settings: "tnum";
+}
+
+row.algorithm > * {
+  font-family: monospace;
+}

@@ -1,0 +1,6 @@
+# Python runtime deps (one per line). Regenerate the Flatpak
+# python3-deps.json with ./build-all.sh --regen-deps when this changes.
+#
+# Kubik has none: the GTK/libadwaita bindings come from the runtime, BlueZ is
+# spoken over Gio's D-Bus stack, and AES is implemented in src/kubik/ble/aes.py
+# precisely so a Rust toolchain is never needed in the build sandbox.

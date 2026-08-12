@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="land.rob.kubik" path="/land/rob/kubik/">
+
+    <key name="window-width" type="i">
+      <default>420</default>
+      <summary>Window width</summary>
+    </key>
+
+    <key name="window-height" type="i">
+      <default>720</default>
+      <summary>Window height</summary>
+    </key>
+
+    <key name="window-maximized" type="b">
+      <default>false</default>
+      <summary>Window maximized</summary>
+    </key>
+
+    <key name="puzzle" type="s">
+      <choices>
+        <choice value="3x3"/>
+        <choice value="2x2"/>
+      </choices>
+      <default>'3x3'</default>
+      <summary>Selected puzzle</summary>
+      <description>
+        Which cube the course, timer and play view work with.
+      </description>
+    </key>
+
+    <key name="last-device-address" type="s">
+      <default>''</default>
+      <summary>Last connected smart cube</summary>
+      <description>
+        Bluetooth address of the cube connected most recently, so it can be
+        offered first on the next scan.
+      </description>
+    </key>
+
+  </schema>
+</schemalist>

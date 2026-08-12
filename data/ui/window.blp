@@ -1,0 +1,95 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $KubikWindow: Adw.ApplicationWindow {
+  title: _("Kubik");
+  default-width: 420;
+  default-height: 720;
+  width-request: 320;
+  height-request: 380;
+
+  content: Adw.ToastOverlay toast_overlay {
+    child: Adw.ToolbarView {
+      [top]
+      Adw.HeaderBar header {
+        title-widget: Adw.WindowTitle window_title {
+          title: _("Kubik");
+        };
+
+        [end]
+        MenuButton {
+          icon-name: "open-menu-symbolic";
+          primary: true;
+          menu-model: primary_menu;
+          tooltip-text: _("Main Menu");
+        }
+      }
+
+      content: Adw.ViewStack view_stack {};
+
+      [bottom]
+      Adw.ViewSwitcherBar switcher_bar {
+        stack: view_stack;
+        reveal: true;
+      }
+    };
+  };
+
+  // Wide: the switcher moves up into the header and the bottom bar goes
+  // away. Narrow is the default so the window sizes down to a phone
+  // without the wide switcher pinning a minimum width on the header.
+  Adw.Breakpoint wide_breakpoint {
+    condition ("min-width: 600sp")
+
+    setters {
+      switcher_bar.reveal: false;
+    }
+  }
+}
+
+menu primary_menu {
+  section {
+    label: _("Puzzle");
+
+    item {
+      label: _("3×3");
+      action: "win.puzzle";
+      target: "3x3";
+    }
+
+    item {
+      label: _("2×2");
+      action: "win.puzzle";
+      target: "2x2";
+    }
+  }
+
+  section {
+    item {
+      label: _("My Cube Is Solved Now");
+      action: "win.sync";
+    }
+
+    item {
+      label: _("Re-read State From Cube");
+      action: "win.reread";
+    }
+  }
+
+  section {
+    item {
+      label: _("Keyboard Shortcuts");
+      action: "win.show-help-overlay";
+    }
+
+    item {
+      label: _("About Kubik");
+      action: "app.about";
+    }
+
+    item {
+      label: _("Quit");
+      action: "app.quit";
+    }
+  }
+}

@@ -1,0 +1,579 @@
+{
+  "_note": "Goal ids are solver stage names (see kubik/solver.py) plus the custom 'daisy'. Masks are derived, never hand-written.",
+  "lessons": [
+    {
+      "id": "meet-the-cube",
+      "title": "Meet the cube",
+      "summary": "Centres, edges and corners — and why the centres decide everything.",
+      "cards": [
+        {
+          "kind": "text",
+          "title": "Six centres that never move",
+          "text": "Turn a face and the centre spins, but it never leaves. The six centres are locked to each other by the core, so they are the cube's fixed reference: wherever the white centre is, that is the white side. Everything else is judged against them."
+        },
+        {
+          "kind": "quiz",
+          "question": "Which colour is on the face opposite yellow?",
+          "options": [
+            "White",
+            "Green",
+            "Red"
+          ],
+          "answer": 0,
+          "corrections": [
+            "",
+            "Green sits opposite blue. Opposite pairs are white/yellow, green/blue and red/orange.",
+            "Red sits opposite orange. Opposite pairs are white/yellow, green/blue and red/orange."
+          ]
+        },
+        {
+          "kind": "text",
+          "title": "Three kinds of piece",
+          "text": "Eight corners with three stickers each, twelve edges with two, six centres with one. A corner can never become an edge — so a piece with white and red on it belongs exactly one place: between the white and red centres."
+        },
+        {
+          "kind": "quiz",
+          "question": "How many edge pieces does a 3×3 have?",
+          "options": [
+            "8",
+            "12",
+            "24"
+          ],
+          "answer": 1,
+          "corrections": [
+            "That is the corner count. Edges live in the middle of each edge of the cube — four per layer, three layers.",
+            "",
+            "24 is the number of edge *stickers*. Each edge piece carries two of them."
+          ]
+        }
+      ],
+      "cube": "3x3"
+    },
+    {
+      "id": "notation",
+      "title": "Notation",
+      "summary": "Six letters, a tick, and a two.",
+      "cards": [
+        {
+          "kind": "text",
+          "title": "One letter per face",
+          "text": "U, D, F, B, R, L — up, down, front, back, right, left. The letter on its own means a quarter turn clockwise, looking straight at that face. Note that clockwise for the back face looks anticlockwise from where you are sitting."
+        },
+        {
+          "kind": "alg",
+          "alg_name": "Quarter turns",
+          "moves": "R U F L D B",
+          "text": "Tap play and watch which layer moves for each letter."
+        },
+        {
+          "kind": "text",
+          "title": "Tick and two",
+          "text": "A tick means anticlockwise: R' undoes R. A two means a half turn, which is the same either way round: R2."
+        },
+        {
+          "kind": "alg",
+          "alg_name": "Undoing a sequence",
+          "moves": "R U R' U'",
+          "text": "Four moves. Play them six times and the cube comes back — every sequence eventually repeats, this one just gets there quickly."
+        },
+        {
+          "kind": "quiz",
+          "question": "What undoes the sequence F R?",
+          "options": [
+            "F' R'",
+            "R' F'",
+            "R F"
+          ],
+          "answer": 1,
+          "corrections": [
+            "Right moves, wrong order. Undo the last move first: R' then F'.",
+            "",
+            "That repeats the sequence rather than undoing it. To undo, reverse the order and flip each move."
+          ]
+        }
+      ],
+      "cube": "3x3"
+    },
+    {
+      "id": "right-hand",
+      "title": "The right-hand algorithm",
+      "summary": "R U R' U' — learn it by name, use it four more times later.",
+      "cards": [
+        {
+          "kind": "alg",
+          "alg_name": "Right-hand algorithm",
+          "moves": "R U R' U'",
+          "text": "This is the single most useful thing to memorise. It takes the piece at the front-top-right and cycles it down and round, and it comes back to almost every step from here on. Learn it as one gesture, not four letters."
+        },
+        {
+          "kind": "alg",
+          "alg_name": "Left-hand algorithm",
+          "moves": "L' U' L U",
+          "text": "The mirror image, for when the piece is on the other side. Same gesture, other hand."
+        },
+        {
+          "kind": "text",
+          "title": "Say it out loud",
+          "text": "Later steps are described as \"right-hand algorithm, three times\" rather than as twelve letters. If you can perform it without reading, the rest of the course gets much shorter."
+        }
+      ],
+      "cube": "3x3"
+    },
+    {
+      "id": "daisy",
+      "title": "The daisy",
+      "summary": "Four white edges around the yellow centre.",
+      "cards": [
+        {
+          "kind": "text",
+          "title": "Start at the easy end",
+          "text": "The white cross is fiddly to build directly. It is much easier to first gather the four white edges around the yellow centre on top, making a daisy, and then drop each petal down into place. Hold the cube with white on the bottom and yellow on top, and keep it that way for the whole solve."
+        },
+        {
+          "kind": "do",
+          "goal": "daisy",
+          "call": "Find the four edges with a white sticker and bring each one to the yellow face, white pointing up.",
+          "text": "No algorithm here. Get an edge into the bottom or middle layer, line it up under a free petal spot, then turn that side face until the white sticker lands on top.",
+          "hold": ""
+        }
+      ],
+      "cube": "3x3"
+    },
+    {
+      "id": "white-cross",
+      "title": "The white cross",
+      "summary": "Drop each petal so its side colour matches.",
+      "cards": [
+        {
+          "kind": "text",
+          "title": "Match before you drop",
+          "text": "Each white edge has a second colour. Turn the yellow face until that second colour sits directly above its own centre, then turn that side face twice to drop the edge to the bottom. Both stickers land right."
+        },
+        {
+          "kind": "quiz",
+          "question": "A white-and-red edge is sitting in the daisy. Where does it belong?",
+          "options": [
+            "Anywhere on the white face",
+            "Between the white and red centres",
+            "Next to the yellow centre"
+          ],
+          "answer": 1,
+          "corrections": [
+            "Only one spot works. A piece belongs where both of its colours meet their own centres.",
+            "",
+            "The daisy is temporary scaffolding. Every white edge finishes next to the white centre."
+          ]
+        },
+        {
+          "kind": "do",
+          "goal": "cross",
+          "call": "Build the white cross on the bottom, checking that each side colour matches its centre.",
+          "text": "Drag the cube to look underneath and check. Dropping a petal before its side colour lines up is the classic mistake."
+        }
+      ],
+      "cube": "3x3"
+    },
+    {
+      "id": "white-corners",
+      "title": "White corners",
+      "summary": "First layer done, with one algorithm repeated.",
+      "cards": [
+        {
+          "kind": "text",
+          "title": "Put it above its home, then repeat",
+          "text": "Find a corner with a white sticker in the top layer. Turn the top layer until the corner sits directly above the gap it belongs in — the gap where both of its other colours meet their centres. Then repeat the right-hand algorithm until it drops into place."
+        },
+        {
+          "kind": "quiz",
+          "question": "A white/blue/red corner is above the gap between the blue and red centres. What now?",
+          "options": [
+            "Right-hand algorithm until it seats",
+            "Turn the whole cube over",
+            "Move it to a different gap"
+          ],
+          "answer": 0,
+          "corrections": [
+            "",
+            "No need — the corner is already above its home. Just repeat the algorithm.",
+            "That gap *is* its home: its two non-white colours match those two centres."
+          ]
+        },
+        {
+          "kind": "text",
+          "title": "If it is stuck in the top",
+          "text": "A white corner already in the bottom layer but in the wrong place, or twisted, has to come out first. Run the right-hand algorithm once against that slot to lift it into the top layer, then treat it normally."
+        },
+        {
+          "kind": "do",
+          "goal": "first-layer",
+          "call": "Finish all four white corners. The whole white face and the bottom row of every side should match.",
+          "text": "Check the sides, not just the white face. Four white stickers in a square with mismatched side colours is not a finished layer."
+        }
+      ],
+      "cube": "3x3"
+    },
+    {
+      "id": "middle-layer",
+      "title": "The middle layer",
+      "summary": "Two insertions, mirror images of each other.",
+      "cards": [
+        {
+          "kind": "text",
+          "title": "Find an edge with no yellow",
+          "text": "Look in the top layer for an edge with no yellow sticker — it belongs in the middle. Turn the top layer until its front-facing colour matches the centre below it. Now it is pointing at its own column, and it needs to go either left or right."
+        },
+        {
+          "kind": "quiz",
+          "question": "The edge's front colour matches the front centre. Its other colour is the right-hand centre's colour. Which way does it go?",
+          "options": [
+            "Left",
+            "Right"
+          ],
+          "answer": 1,
+          "corrections": [
+            "The other colour tells you the destination — it matches the right centre, so the edge goes right.",
+            ""
+          ]
+        },
+        {
+          "kind": "alg",
+          "alg_name": "Insert right",
+          "moves": "U R U' R' U' F' U F",
+          "text": "Sends the edge into the slot on the right. It is the right-hand algorithm followed by a left-handed one on the front face."
+        },
+        {
+          "kind": "alg",
+          "alg_name": "Insert left",
+          "moves": "U' L' U L U F U' F'",
+          "text": "The mirror image, for the slot on the left."
+        },
+        {
+          "kind": "text",
+          "title": "When the slot is already full",
+          "text": "If every remaining middle edge is already in a slot but wrong, run either insertion against that slot. It kicks the wrong piece out into the top layer, and then you can place it properly."
+        },
+        {
+          "kind": "do",
+          "goal": "middle",
+          "call": "Fill all four middle slots. Two layers should now be complete.",
+          "text": ""
+        }
+      ],
+      "cube": "3x3"
+    },
+    {
+      "id": "yellow-cross",
+      "title": "The yellow cross",
+      "summary": "Dot, L, line, cross — one algorithm, up to three times.",
+      "cards": [
+        {
+          "kind": "text",
+          "title": "Three shapes and a finish",
+          "text": "Look at the yellow stickers on the yellow face, ignoring the corners. You will see a dot, an L shape, a line, or the finished cross. One algorithm walks you through all of them: dot becomes L, L becomes line, line becomes cross."
+        },
+        {
+          "kind": "alg",
+          "alg_name": "Cross algorithm",
+          "moves": "F R U R' U' F'",
+          "text": "Hold the L so its two arms point at the front and the left. Hold the line so it runs left to right. From a dot it does not matter how you hold it."
+        },
+        {
+          "kind": "quiz",
+          "question": "You have a line running left to right. How many more times will you need the algorithm?",
+          "options": [
+            "Once",
+            "Twice",
+            "Three times"
+          ],
+          "answer": 0,
+          "corrections": [
+            "",
+            "A line is one step from the cross. Two would be right if you were starting from an L.",
+            "Three is the worst case, starting from a dot."
+          ]
+        },
+        {
+          "kind": "do",
+          "goal": "ll-edges-orient",
+          "call": "Make the yellow cross. The corners do not matter yet.",
+          "text": "Only the four yellow edge stickers need to point up. Ignore everything the corners are doing."
+        }
+      ],
+      "cube": "3x3"
+    },
+    {
+      "id": "yellow-face",
+      "title": "The yellow face",
+      "summary": "Twist the corners with one repeated algorithm.",
+      "cards": [
+        {
+          "kind": "text",
+          "title": "It looks like it is going wrong",
+          "text": "This step scrambles the yellow face in the middle of doing it, which is unnerving the first few times. Trust it: as long as you keep applying the algorithm and re-aiming, it converges."
+        },
+        {
+          "kind": "alg",
+          "alg_name": "Corner twist",
+          "moves": "R U R' U R U2 R'",
+          "text": "Aim it at a corner that already has yellow on its left face, run it, then look again and re-aim. One to three repetitions finishes any case."
+        },
+        {
+          "kind": "do",
+          "goal": "ll-corners-orient",
+          "call": "Get all four yellow corners facing up. The whole yellow face should be yellow.",
+          "text": "The side colours will still be a mess. That is the next two steps."
+        }
+      ],
+      "cube": "3x3"
+    },
+    {
+      "id": "yellow-corners",
+      "title": "Yellow corners",
+      "summary": "Get each corner to its own home.",
+      "cards": [
+        {
+          "kind": "text",
+          "title": "Right piece, right corner",
+          "text": "The yellow face is done, but the corners may be in each other's places. A corner is home when its three colours match the three centres around it, even if the layer needs turning to see it."
+        },
+        {
+          "kind": "alg",
+          "alg_name": "Corner cycle",
+          "moves": "R' F R' B2 R F' R' B2 R2",
+          "text": "Rotates three corners and leaves the fourth alone. If one corner is already home, aim so that it is the one left alone."
+        },
+        {
+          "kind": "do",
+          "goal": "ll-corners-permute",
+          "call": "Put all four yellow corners in their own homes.",
+          "text": "If no corner is home yet, run the algorithm once from anywhere — that always produces at least one that is."
+        }
+      ],
+      "cube": "3x3"
+    },
+    {
+      "id": "last-edges",
+      "title": "The last edges",
+      "summary": "One cycle, and the cube is done.",
+      "cards": [
+        {
+          "kind": "text",
+          "title": "Almost there",
+          "text": "Everything is placed except up to four edges in the last layer. One algorithm cycles three of them; applying it once or twice always finishes the cube."
+        },
+        {
+          "kind": "alg",
+          "alg_name": "Edge cycle",
+          "moves": "R U' R U R U R U' R' U' R2",
+          "text": "If one side is already complete, hold it away from the working face and this solves the rest in one go."
+        },
+        {
+          "kind": "do",
+          "goal": "ll-edges-permute",
+          "call": "Finish the cube.",
+          "text": ""
+        }
+      ],
+      "cube": "3x3"
+    },
+    {
+      "id": "free-solve",
+      "title": "Free solve",
+      "summary": "The whole thing, unaided — with a hint if you want one.",
+      "cards": [
+        {
+          "kind": "text",
+          "title": "No prompts unless you ask",
+          "text": "Scramble the cube and solve it end to end. The hint button is still there, and it will tell you which step you are on and what the next move is, but nothing appears unless you ask for it."
+        },
+        {
+          "kind": "do",
+          "goal": "ll-edges-permute",
+          "call": "Scramble, then solve the whole cube.",
+          "text": ""
+        }
+      ],
+      "cube": "3x3"
+    },
+    {
+      "id": "2x2-meet",
+      "cube": "2x2",
+      "title": "Meet the 2×2",
+      "summary": "Eight corners, no edges, and — awkwardly — no centres.",
+      "cards": [
+        {
+          "kind": "text",
+          "title": "It is a 3×3 with the middles removed",
+          "text": "Every piece on a 2×2 is a corner with three stickers. There are no edges and no centres, so the whole puzzle is the eight corners you already know how to move. If you have done the 3×3 course, you already know most of this."
+        },
+        {
+          "kind": "text",
+          "title": "No centres means no reference",
+          "text": "On a 3×3 the centres tell you where every piece belongs: the white-and-red edge goes between the white and red centres. A 2×2 has nothing fixed to point at. Instead you read the colour scheme off a corner you have already solved — if one corner shows white, blue and red in that order round the cube, every other piece has to agree with it."
+        },
+        {
+          "kind": "quiz",
+          "question": "On a solved cube, red is opposite orange. If you are holding a corner with red on the right, where is orange?",
+          "options": [
+            "On the left",
+            "On the back",
+            "Also on the right"
+          ],
+          "answer": 0,
+          "corrections": [
+            "",
+            "Back is where green or blue sits. Opposite pairs never touch: white/yellow, blue/green, red/orange.",
+            "A single piece can never carry two opposite colours — they are on opposite sides of the cube."
+          ]
+        },
+        {
+          "kind": "quiz",
+          "question": "How many pieces does a 2×2 have in total?",
+          "options": [
+            "6",
+            "8",
+            "20"
+          ],
+          "answer": 1,
+          "corrections": [
+            "That is the number of faces. Count pieces, not sides.",
+            "",
+            "20 is the 3×3 count: 8 corners plus 12 edges. The 2×2 keeps only the corners."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "2x2-notation",
+      "cube": "2x2",
+      "title": "Notation on two layers",
+      "summary": "The same letters — but each turn moves half the cube.",
+      "cards": [
+        {
+          "kind": "text",
+          "title": "Same six letters",
+          "text": "U, D, F, B, R, L mean exactly what they did on the 3×3, with the same ticks and twos. The difference is that a 2×2 has only two layers, so every turn moves half the puzzle rather than a third of it."
+        },
+        {
+          "kind": "alg",
+          "alg_name": "Right-hand algorithm",
+          "moves": "R U R' U'",
+          "text": "The same gesture as on the 3×3, and it does the same job here: it cycles a corner out of the top layer and back. This one algorithm builds the entire first layer."
+        },
+        {
+          "kind": "text",
+          "title": "Hold it still",
+          "text": "Because there are no centres, turning the whole puzzle in your hands changes what R and U mean. Keep white on the bottom and yellow on top for the whole solve, and match the cube on screen."
+        }
+      ]
+    },
+    {
+      "id": "2x2-white-face",
+      "cube": "2x2",
+      "title": "The white layer",
+      "summary": "Four corners, one algorithm — and the sides have to match.",
+      "cards": [
+        {
+          "kind": "text",
+          "title": "A layer, not a face",
+          "text": "Four white stickers in a square on the bottom is not enough. Each of those corners carries two other colours, and they have to line up with each other so the bottom layer shows a solid band of colour on every side."
+        },
+        {
+          "kind": "text",
+          "title": "Same method as the 3×3",
+          "text": "Find a corner with a white sticker in the top layer. Turn the top layer until it sits directly above where it belongs, then repeat the right-hand algorithm until it drops in. A corner already in the bottom layer but wrong comes out the same way: run the algorithm once against its slot to lift it into the top."
+        },
+        {
+          "kind": "quiz",
+          "question": "You have solved the white-blue-red corner. Where does the white-blue-orange corner go?",
+          "options": [
+            "Next to it, sharing the blue side",
+            "Diagonally opposite it",
+            "Anywhere on the white layer"
+          ],
+          "answer": 0,
+          "corrections": [
+            "",
+            "Diagonal corners share only white. These two share blue, so they must sit side by side along the blue face.",
+            "With no centres you still cannot place a corner anywhere — it has to agree with the corners already down."
+          ]
+        },
+        {
+          "kind": "do",
+          "goal": "first-layer",
+          "call": "Solve the whole white layer: four white stickers down, and the sides matching all the way round.",
+          "text": "Drag the cube to check the sides. This is the step where the missing centres actually bite — judge everything against the corners you have already placed."
+        }
+      ]
+    },
+    {
+      "id": "2x2-yellow-face",
+      "cube": "2x2",
+      "title": "The yellow face",
+      "summary": "Turn every yellow sticker upward.",
+      "cards": [
+        {
+          "kind": "text",
+          "title": "Orientation before position",
+          "text": "Ignore where the top corners are for now and only look at which way they face. The goal is a solid yellow top, even though the sides will still be a mess."
+        },
+        {
+          "kind": "alg",
+          "alg_name": "Corner twist",
+          "moves": "R U R' U R U2 R'",
+          "text": "Exactly the algorithm from the 3×3 course. Aim it at a corner with yellow on its left face, run it, look again, re-aim. One to three repetitions finishes any case."
+        },
+        {
+          "kind": "do",
+          "goal": "ll-corners-orient",
+          "call": "Make the whole top face yellow.",
+          "text": "It will look worse before it looks better. Keep re-aiming and repeating."
+        }
+      ]
+    },
+    {
+      "id": "2x2-yellow-corners",
+      "cube": "2x2",
+      "title": "The last four corners",
+      "summary": "One cycle, and the cube is done.",
+      "cards": [
+        {
+          "kind": "text",
+          "title": "Position, finally",
+          "text": "The yellow face is done and the bottom layer is solved, so all that is left is sliding the top corners round into the right order."
+        },
+        {
+          "kind": "alg",
+          "alg_name": "Corner cycle",
+          "moves": "R' F R' B2 R F' R' B2 R2",
+          "text": "Rotates three corners and leaves the fourth where it is. If one corner is already right, aim so that it is the one left alone; if none are, run it once from anywhere and at least one will be."
+        },
+        {
+          "kind": "do",
+          "goal": "ll-corners-permute",
+          "call": "Finish the cube.",
+          "text": ""
+        }
+      ]
+    },
+    {
+      "id": "2x2-free-solve",
+      "cube": "2x2",
+      "title": "Free solve",
+      "summary": "The whole 2×2, unaided.",
+      "cards": [
+        {
+          "kind": "text",
+          "title": "Three steps, that is all",
+          "text": "White layer, yellow face, last four corners. A 2×2 is short enough that the whole method fits in your head after a handful of solves — which is exactly why it is a good place to practise the algorithms you will need on the 3×3."
+        },
+        {
+          "kind": "do",
+          "goal": "ll-corners-permute",
+          "call": "Scramble, then solve it end to end.",
+          "text": "The hint button still works if you get stuck."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+data/land.rob.kubik.desktop.in
+data/land.rob.kubik.metainfo.xml.in
+data/ui/window.blp
+data/ui/help-overlay.blp
+src/kubik/views/devices.py
+src/kubik/views/learn.py
+src/kubik/views/play.py
+src/kubik/views/timer.py
+src/kubik/window.py

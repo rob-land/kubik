@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3d3846"/>
+      <stop offset="1" stop-color="#241f31"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="url(#bg)"/>
+  <g stroke="#241f31" stroke-width="2.5" stroke-linejoin="round">
+    <!-- top face, yellow: the layer the course works on -->
+    <g fill="#f5c211">
+      <path d="M64 22 44 33 64 44 84 33Z"/>
+      <path d="M44 33 24 44 44 55 64 44Z"/>
+      <path d="M84 33 64 44 84 55 104 44Z"/>
+      <path d="M64 44 44 55 64 66 84 55Z"/>
+    </g>
+    <!-- left face, blue -->
+    <g fill="#1a5fb4">
+      <path d="M24 44 24 67 44 78 44 55Z"/>
+      <path d="M44 55 44 78 64 89 64 66Z"/>
+      <path d="M24 67 24 90 44 101 44 78Z"/>
+      <path d="M44 78 44 101 64 112 64 89Z"/>
+    </g>
+    <!-- right face, red -->
+    <g fill="#c01c28">
+      <path d="M64 66 64 89 84 78 84 55Z"/>
+      <path d="M84 55 84 78 104 67 104 44Z"/>
+      <path d="M64 89 64 112 84 101 84 78Z"/>
+      <path d="M84 78 84 101 104 90 104 67Z"/>
+    </g>
+  </g>
+</svg>

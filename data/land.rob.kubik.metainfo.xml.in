@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>land.rob.kubik</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  <name>Kubik</name>
+  <summary>Learn to solve the Rubik's cube</summary>
+
+  <description>
+    <p>
+      Kubik teaches the layer-by-layer method one step at a time, checking your
+      progress against the cube itself rather than asking you to compare
+      pictures. It covers the 3×3 and the 2×2, works on a desktop and on a
+      phone, and works whether or not you own a Bluetooth cube.
+    </p>
+    <p>Features:</p>
+    <ul>
+      <li>A course from notation to a full solve, with quizzes that ask you to
+          predict before they tell you what to do</li>
+      <li>A layer-by-layer solver that explains each step, plus a hint button
+          that names the step you are on and the next move to make</li>
+      <li>A speedcubing timer with WCA-style averages, penalties and history,
+          which starts and stops itself when a smart cube is connected</li>
+      <li>Support for GAN, GoCube, Rubik's Connected and Giiker cubes over
+          Bluetooth Low Energy</li>
+      <li>An on-screen cube you can drag, turn and scramble, so nothing needs
+          buying to get started</li>
+      <li>No account, no network access, no in-app purchases</li>
+    </ul>
+  </description>
+
+  <launchable type="desktop-id">land.rob.kubik.desktop</launchable>
+
+  <developer id="land.rob">
+    <name>rob</name>
+  </developer>
+
+  <url type="homepage">https://github.com/rob-land/kubik</url>
+  <url type="bugtracker">https://github.com/rob-land/kubik/issues</url>
+
+  <requires>
+    <display_length compare="ge">360</display_length>
+  </requires>
+  <supports>
+    <control>touch</control>
+    <control>pointing</control>
+    <control>keyboard</control>
+  </supports>
+
+  <categories>
+    <category>Education</category>
+    <category>Game</category>
+    <category>LogicGame</category>
+  </categories>
+
+  <content_rating type="oars-1.1"/>
+
+  <releases>
+    <release version="0.1.0" date="2026-08-11">
+      <description>
+        <p>First release.</p>
+      </description>
+    </release>
+  </releases>
+</component>
