@@ -41,12 +41,19 @@ jobs:
           .venv/bin/pip install pytest -r requirements.txt
       - name: Build the UI bundle
         # The UI tests resolve their templates out of the GResource bundle and
-        # skip without it, so build before testing rather than after.
+        # skip without it. Compile just that, rather than running the whole
+        # Meson configure — the flatpak job already covers the real build, and
+        # this keeps the test job off the full toolchain.
         run: |
           sudo apt-get install -y --no-install-recommends \
-            meson ninja-build blueprint-compiler libglib2.0-dev-bin gettext
-          meson setup _build
-          meson compile -C _build
+            blueprint-compiler libglib2.0-dev-bin
+          mkdir -p _build/data/ui
+          blueprint-compiler batch-compile _build/data/ui data/ui \
+            data/ui/window.blp data/ui/help-overlay.blp
+          glib-compile-resources \
+            --sourcedir=_build/data/ui --sourcedir=data/ui \
+            --target=_build/data/ui/land.rob.kubik.gresource \
+            data/ui/land.rob.kubik.gresource.xml
       - name: Run the test suite
         run: PYTHONPATH=src .venv/bin/python -m pytest tests/ -q
 
