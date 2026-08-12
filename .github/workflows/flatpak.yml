@@ -44,7 +44,7 @@ jobs:
         # skip without it, so build before testing rather than after.
         run: |
           sudo apt-get install -y --no-install-recommends \
-            meson ninja-build blueprint-compiler libglib2.0-dev-bin
+            meson ninja-build blueprint-compiler libglib2.0-dev-bin gettext
           meson setup _build
           meson compile -C _build
       - name: Run the test suite
