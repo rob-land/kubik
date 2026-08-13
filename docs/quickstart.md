@@ -49,6 +49,30 @@ Drag to rotate, scroll to zoom, tap the move pad to turn. **Solve** produces a
 layer-by-layer solution grouped into labelled steps; the play button on each
 row replays just that step on the cube.
 
+### Solve
+
+For when you have a scrambled cube and no idea. Pick a colour, tap the
+stickers on the unfolded net, and Kubik fills in whatever follows.
+
+The six centres are there before you start. As you paint, the app rules out
+what a real cube cannot be — no corner carries two whites, no colour appears
+ten times, every piece exists exactly once — and any sticker left with only
+one possibility is filled in for you. Those show a **small ring**, so you can
+always tell what you entered from what was worked out.
+
+Paint face by face and the effort tapers off sharply: the up and right faces
+need all eight stickers, the left needs about three, and the back usually
+needs none. Around 32 taps rather than 48.
+
+Get one wrong and it says so immediately, naming the piece — "no real corner
+has those colours (the URF corner)" — instead of a blanket "invalid" once you
+have finished. **Clear** starts over; **Scan From Cube** loads whatever the
+app currently believes, which is handy with a smart cube connected.
+
+Hit **Solve** for the same explained, step-by-step solution the course
+teaches. The entered cube is loaded into **Play** too, so you can step through
+it in 3D.
+
 ### Timer
 
 Press **Start**, or hit space. Averages of 5 and 12 follow the WCA rules — the

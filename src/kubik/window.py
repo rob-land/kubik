@@ -1,6 +1,6 @@
 """Kubik main window — the adaptive shell.
 
-One `Adw.ViewStack` with four pages. Above 600sp the switcher sits in the
+One `Adw.ViewStack` with five pages. Above 600sp the switcher sits in the
 header bar; below it moves to a bottom bar, which is what makes the same
 build usable on Phosh. Narrow is the default so the window sizes down to a
 phone without the wide switcher pinning a minimum width on the header.
@@ -23,6 +23,7 @@ from kubik.store import Store
 from kubik.views.devices import DevicesView
 from kubik.views.learn import LearnView
 from kubik.views.play import PlayView
+from kubik.views.solve import SolveView
 from kubik.views.timer import TimerView
 
 log = logging.getLogger(__name__)
@@ -30,6 +31,7 @@ log = logging.getLogger(__name__)
 PAGES = [
     ("learn", "Learn", "org.gnome.Settings-accessibility-symbolic"),
     ("play", "Play", "view-grid-symbolic"),
+    ("solve", "Solve", "edit-find-symbolic"),
     ("timer", "Timer", "alarm-symbolic"),
     ("cubes", "Cubes", "bluetooth-symbolic"),
 ]
@@ -57,6 +59,7 @@ class KubikWindow(Adw.ApplicationWindow):
         self._views = {
             "learn": LearnView(self.session, self.store),
             "play": PlayView(self.session),
+            "solve": SolveView(self.session),
             "timer": TimerView(self.session, self.store),
             "cubes": DevicesView(self.session),
         }

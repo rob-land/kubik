@@ -23,6 +23,16 @@ layer-by-layer solver that shows its work: every step is labelled with the
 stage it belongs to and what it achieves, and each can be replayed on the
 cube.
 
+**Solve** — got a scrambled cube and no idea? Paint its colours onto an
+unfolded net and Kubik works out the rest. It knows the six centres before you
+start, knows every corner and edge is one of a fixed set of real pieces, knows
+each colour appears nine times, and knows the last piece's orientation is
+forced by parity — so it fills in what follows from what you have typed and
+tells you precisely which sticker is impossible when you slip. In practice you
+paint four faces and the last two mostly complete themselves: about 32 entries
+instead of 48. Then it hands you the same explained, step-by-step solution the
+course teaches.
+
 **Timer** — WCA-style averages of 5 and 12, best time, +2/DNF penalties and
 history, kept separately per puzzle. With a smart cube connected it runs
 itself: it arms when the cube matches the displayed scramble, starts on your
@@ -98,7 +108,7 @@ tests/          pytest suite, with hardware captures in tests/data/
 python3 -m pytest tests/ -q
 ```
 
-163 tests. Both solvers are checked against several hundred random scrambles
+182 tests. Both solvers are checked against several hundred random scrambles
 per run plus known-awkward states; the Gen4 driver is replayed against two
 real hardware captures; and the UI tests build the real window and drive it —
 switching pages and puzzles, walking every lesson card in both courses,

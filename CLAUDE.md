@@ -47,13 +47,15 @@ src/kubik/
   application.py     KubikApplication
   window.py          KubikWindow — the adaptive shell
   cube.py            Cube (3×3) and Cube2 (2×2): moves, facelets, notation
-  solver.py          layer-by-layer solver for both puzzles
+  solver/            layer-by-layer solver for both puzzles
   curriculum.py      lesson model; goal masks derived from solver stages
+  facelets.py        PartialCube: hand entry with constraint propagation
   store.py           SQLite solve history and course progress
   logging_setup.py   configure_logging()
   ble/               aes, bluez transport, driver registry, per-vendor drivers
-  views/             learn, play, timer, cubes
+  views/             learn, play, solve, timer, cubes
   widgets/cube3d.py  Cairo-rendered cube and flat net
+  widgets/neteditor.py  paintable net for hand entry
 data/ui/             *.blp + gresource + style.css
 tests/               pytest; fixtures in tests/data/
 ```
@@ -83,6 +85,10 @@ packages.
 - **A 2×2 is a 3×3's corners.** `Cube2` shares the corner move tables and the
   solver reuses its three corner stages. Nothing is forked per puzzle; the
   renderer, curriculum and timer take a size.
+- **Hand entry re-derives, never patches.** `PartialCube` stores only the
+  stickers the user typed and recomputes every inference after each edit. A
+  correction can therefore never leave a stale deduction behind. Do not be
+  tempted to mutate the deduced set in place.
 - **Moves are the primary channel from hardware**; absolute state is optional
   and used when a driver offers it. Sessions seed from an explicit "my cube is
   solved" sync, which is what makes a partially-understood protocol still

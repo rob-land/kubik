@@ -75,11 +75,11 @@ def pump(iterations=60):
 
 def test_window_builds_with_all_pages(window):
     names = [p.get_name() for p in window.view_stack.get_pages()]
-    assert names == ["learn", "play", "timer", "cubes"]
+    assert names == ["learn", "play", "solve", "timer", "cubes"]
 
 
 def test_switching_pages(window):
-    for name in ("play", "timer", "cubes", "learn"):
+    for name in ("play", "solve", "timer", "cubes", "learn"):
         window.view_stack.set_visible_child_name(name)
         pump(5)
         assert window.view_stack.get_visible_child_name() == name
@@ -340,3 +340,103 @@ def test_devices_lists_every_driver(window):
     devices = window.view_stack.get_child_by_name("cubes")
     assert devices is not None
     assert len(drivers()) >= 6
+
+
+# --- Solve: entering a cube by hand -------------------------------------------
+
+def _solve_view(window):
+    return window.view_stack.get_child_by_name("solve")
+
+
+def test_solve_view_starts_with_centres_only(window):
+    view = _solve_view(window)
+    assert view.partial.entered == 0
+    assert not view.solve_button.get_sensitive()
+    assert "48 to go" in view.status.get_text()
+
+
+def test_painting_a_sticker_updates_the_model_and_status(window):
+    view = _solve_view(window)
+    view._brush = 1
+    view._on_sticker(view.editor, 8)
+    assert view.partial.facelets[8] == 1
+    assert view.partial.is_user_set(8)
+    assert "47 to go" in view.status.get_text()
+
+
+def test_the_eraser_clears_a_sticker(window):
+    view = _solve_view(window)
+    view._brush = 1
+    view._on_sticker(view.editor, 8)
+    view._brush = None
+    view._on_sticker(view.editor, 8)
+    assert view.partial.facelets[8] is None
+
+
+def test_entering_a_whole_cube_enables_solving(window):
+    from kubik.cube import Cube
+    from kubik.facelets import CENTRES
+
+    view = _solve_view(window)
+    target = Cube().apply("R U R' U' F2 L D B'").to_facelets()
+    for index in range(54):
+        if index in CENTRES or view.partial.facelets[index] is not None:
+            continue
+        view._brush = target[index]
+        view._on_sticker(view.editor, index)
+    assert view.partial.complete
+    assert view.solve_button.get_sensitive()
+
+    view._on_solve(view.solve_button)
+    assert view.solution.get_visible()
+    rows = []
+    child = view.solution.get_first_child()
+    while child is not None:
+        rows.append(child.get_title())
+        child = child.get_next_sibling()
+    assert rows
+    # The solution has to actually solve the cube that was entered.
+    moves = [m for row in rows for m in row.split()]
+    assert Cube.from_facelets(target).apply(moves).is_solved()
+    # ... and the rest of the app now holds that cube.
+    assert window.session.cube == Cube.from_facelets(target)
+
+
+def test_seeding_from_the_connected_cube(window):
+    from kubik.cube import Cube
+
+    window.session.reset(Cube().apply("R U F"))
+    view = _solve_view(window)
+    view._on_from_cube(None)
+    assert view.partial.complete
+    assert view.partial.to_cube() == Cube().apply("R U F")
+
+
+def test_clear_resets_to_centres(window):
+    view = _solve_view(window)
+    view._brush = 2
+    view._on_sticker(view.editor, 8)
+    view._on_clear(None)
+    assert view.partial.entered == 0
+    assert not view.solve_button.get_sensitive()
+
+
+def test_an_impossible_sticker_is_reported_not_swallowed(window):
+    view = _solve_view(window)
+    view._brush = 0
+    view._on_sticker(view.editor, 8)
+    view._on_sticker(view.editor, 9)      # two whites on one corner
+    assert not view.solve_button.get_sensitive()
+    assert "URF" in view.status.get_text()
+
+
+def test_exhausted_colours_are_disabled_in_the_palette(window):
+    view = _solve_view(window)
+    view._brush = 3
+    for index in (0, 1, 2, 3, 5, 6, 7, 8):
+        view._on_sticker(view.editor, index)
+    # Eight yellows plus the yellow centre is all nine.
+    assert view.partial.remaining(3) == 0
+    view._brush = 0
+    view._refresh()
+    assert not view._swatches[3].get_sensitive()

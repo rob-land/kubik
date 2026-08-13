@@ -21,6 +21,7 @@ python.install_sources(
     'application.py',
     'cube.py',
     'curriculum.py',
+    'facelets.py',
     'logging_setup.py',
     'main.py',
     'store.py',
@@ -60,6 +61,7 @@ python.install_sources(
     'views/devices.py',
     'views/learn.py',
     'views/play.py',
+    'views/solve.py',
     'views/timer.py',
   ),
   subdir: meson.project_name() / 'views',
@@ -69,6 +71,7 @@ python.install_sources(
   files(
     'widgets/__init__.py',
     'widgets/cube3d.py',
+    'widgets/neteditor.py',
   ),
   subdir: meson.project_name() / 'widgets',
 )

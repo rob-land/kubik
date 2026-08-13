@@ -81,6 +81,36 @@ The usual worry about a 2×2 — no centres, so "solved" needs a reference — d
 not arise. The frame is the cube's own body, which is what a smart cube
 reports against and what the on-screen cube displays.
 
+## Hand entry: rule out the impossible as you go
+
+The web solvers hand you 54 blank stickers, let you paint all of them, and
+then say "invalid". Both halves of that are worse than they need to be. The
+mistake could be anywhere, and most of the painting was never free to begin
+with — a real cube is heavily constrained:
+
+- The six centres never move, so they are known before you start.
+- Every corner is one of eight real pieces and every edge one of twelve, each
+  appearing exactly once. Two colours of a corner *in known positions* pin the
+  piece uniquely, so the third sticker is free.
+- Each colour appears exactly nine times.
+- Corner twists sum to zero mod three and edge flips to zero mod two, so the
+  last piece of each kind is determined — identity *and* orientation.
+
+`PartialCube` maintains, per slot, the set of (piece, orientation) placements
+still consistent with what is known, prunes it by piece uniqueness in both
+directions (a slot that can only hold one piece claims it; a piece that fits
+only one slot is placed there), by exhausted colours, and by parity — then
+fills any sticker whose surviving placements all agree. Repeat to a fixpoint.
+
+Entering face by face, that costs about 32 entries instead of 48. The saving
+is not evenly spread, which is the nice part: U and R need all eight, F needs
+seven, D about six, L about three, and B under one. The work tapers to nothing
+exactly when hand-entering is most tedious.
+
+Errors are localised rather than deferred: painting a second white onto a
+corner is rejected the moment it happens, naming the corner, instead of
+surfacing as a generic "invalid" forty stickers later.
+
 ## Why the solver is layer-by-layer
 
 CubeStation ships two solvers: a Kociemba two-phase `cs::Search` and a
