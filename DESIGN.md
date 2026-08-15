@@ -141,6 +141,33 @@ all. AES-128 for the GAN cubes is implemented in-tree for the same reason: a
 Rust toolchain in the Flatpak build sandbox is a steep price for one block
 cipher over 20-byte packets.
 
+## Two bugs that hid each other
+
+Worth recording as a pair, because neither was findable without the other
+being fixed first.
+
+`Peripheral.write` built its D-Bus payload by wrapping the options dict in a
+`GLib.Variant` and then wrapping that again. PyGObject raises `KeyError(0)`
+while unpacking the outer tuple, and `str(KeyError(0))` is `"0"` — so the app
+said "Could not start the cube: 0" and pointed nowhere. **No driver could
+write to any cube.** It hid because reading a notification needs no payload,
+so the move stream worked perfectly, and because every hardware harness had
+its own `write`: the drivers were only ever tested against fakes.
+
+Underneath it sat a second defect. Every BLE notification arrives **twice**,
+byte-identical, within a millisecond — from a GAN i Carry 4 and a Rubik's
+Connected X alike, so it is BlueZ rather than any vendor. The driver emitted
+two moves per turn, which would have double-applied every turn to the model.
+The write bug masked it entirely: `start()` threw before subscribing, so in
+the app no moves ever arrived.
+
+The fix was decided by measurement rather than taste. Across a real session,
+identical consecutive frames were 0–1 ms apart, and genuinely different frames
+were never closer than 149 ms. A 25 ms window sits 25x above the duplicates
+and 6x below the fastest real turn, and it lives in the transport because both
+vendors show the behaviour. Confirmed on hardware: six turns produced six
+moves, including two consecutive `R` turns that both survived.
+
 ## What hardware changed
 
 GAN Gen4 was decoded against a real GAN i Carry 4. Four things were wrong

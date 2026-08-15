@@ -8,6 +8,7 @@ rest of the app already uses.
 from __future__ import annotations
 
 import logging
+import time
 
 from gi.repository import Gio, GLib, GObject
 
@@ -20,6 +21,13 @@ ADAPTER = "org.bluez.Adapter1"
 DEVICE = "org.bluez.Device1"
 SERVICE = "org.bluez.GattService1"
 CHARACTERISTIC = "org.bluez.GattCharacteristic1"
+
+#: Every notification arrives twice, byte-identical and within a millisecond
+#: — seen from both a GAN i Carry 4 and a Rubik's Connected X, so it is the
+#: transport rather than any one cube. Genuine turns of the same face were
+#: never closer than 149 ms even when scrambling quickly, so collapsing an
+#: identical repeat inside this window cannot swallow a real move.
+DUPLICATE_WINDOW = 0.025
 
 
 def full_uuid(short: str) -> str:
@@ -97,8 +105,11 @@ class Peripheral:
         path, flags = entry
         needs_response = response or "write-without-response" not in flags
         kind = "request" if needs_response else "command"
-        options = GLib.Variant("a{sv}", {"type": GLib.Variant("s", kind)})
-        body = GLib.Variant("(aya{sv})", (list(data), options))
+        # The a{sv} member is built from a plain dict of Variants. Wrapping it
+        # in a Variant first makes GLib raise KeyError(0) while unpacking the
+        # outer tuple, which surfaces as the deeply unhelpful message "0".
+        body = GLib.Variant("(aya{sv})",
+                            (list(data), {"type": GLib.Variant("s", kind)}))
         self.bus.call(BLUEZ, path, CHARACTERISTIC, "WriteValue", body,
                       None, Gio.DBusCallFlags.NONE, 5000, None,
                       self._log_result, f"write {uuid}")
@@ -110,14 +121,21 @@ class Peripheral:
         if entry is None:
             raise BlueZError(f"characteristic {uuid} not present")
         path, _ = entry
+        last = {"value": None, "at": 0.0}
 
         def on_props(_conn, _sender, _path, _iface, _signal, params):
             iface, changed, _ = params.unpack()
             if iface != CHARACTERISTIC:
                 return
             value = changed.get("Value")
-            if value is not None:
-                callback(bytes(value))
+            if value is None:
+                return
+            data = bytes(value)
+            now = time.monotonic()
+            if data == last["value"] and now - last["at"] < DUPLICATE_WINDOW:
+                return
+            last["value"], last["at"] = data, now
+            callback(data)
 
         sub = self.bus.signal_subscribe(
             BLUEZ, PROPS, "PropertiesChanged", path, None,

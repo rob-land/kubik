@@ -117,5 +117,16 @@ packages.
   it plausibly resets the cube's tracking.
 - GAN Gen4 and the Particula 3×3s have been tested against real cubes. GAN
   Gen2, Giiker and the GoCube 2×2 are tested up to the radio only.
+- **Build D-Bus payloads from plain dicts, not nested Variants.**
+  `GLib.Variant("(aya{sv})", (data, GLib.Variant("a{sv}", {...})))` raises
+  `KeyError(0)`, which reaches the user as "Could not start the cube: 0". That
+  shipped once and hid for weeks: notifications need no payload, so moves kept
+  working while no driver could write at all. `tests/test_bluez.py` exercises
+  the real transport with a recording bus — keep it that way rather than
+  testing drivers only against fakes with their own `write`.
+- **Every notification arrives twice**, byte-identical, within a millisecond,
+  from every cube tried. The transport collapses repeats inside
+  `DUPLICATE_WINDOW`; genuine turns of the same face were never closer than
+  149 ms. Do not move this into a driver — it is BlueZ, not a vendor quirk.
 - Don't block the GTK main loop. There is no worker thread here by design —
   BlueZ is GLib-native, so callbacks already arrive on the main loop.
