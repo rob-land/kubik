@@ -291,19 +291,18 @@ def test_driver_puzzles():
         assert cls.cube_type == "3x3"
 
 
-def test_gocube_2x2_decodes_a_24_sticker_state():
-    """The 2x2 shares the framing; only the payload length differs."""
+def test_gocube_2x2_reports_moves_only():
+    """A 2x2 has no centres, so it cannot share the 3x3's centre-first ring
+    layout; nothing is decoded from an assumption."""
+    assert not GoCube2x2.reports_state
     driver = GoCube2x2(FakeNus())
     states = []
     driver.connect("state", lambda _d, payload: states.append(payload))
-    # GoCube reports faces in B F U D R L order with its own colour indices.
     order = [5, 2, 0, 3, 1, 4]
     colours = {5: 0, 2: 1, 0: 2, 3: 3, 1: 4, 4: 5}
     payload = bytes(colours[face] for face in order for _ in range(4))
     driver._on_data(_gocube_frame(gocube.MSG_STATE, payload))
-    assert len(states) == 1
-    from kubik.cube import Cube2
-    assert Cube2.from_facelets(states[0]).is_solved()
+    assert states == []
 
 
 def test_gocube_2x2_still_decodes_rotations():
@@ -312,3 +311,64 @@ def test_gocube_2x2_still_decodes_rotations():
     driver.connect("move", lambda _d, face, q: seen.append((face, q)))
     driver._on_data(_gocube_frame(gocube.MSG_ROTATION, bytes([8])))
     assert seen == [("R", 1)]
+
+
+# --- GoCube state, against a Rubik's Connected X ------------------------------
+# Captured from real hardware: the cube was solved, turned nine known times,
+# then asked for its state. A solved cube proves nothing here — every
+# self-consistent relabelling of faces, colours and sticker positions decodes
+# solved as solved — so the fixture is deliberately a scrambled one.
+
+HARDWARE_STATE_PAYLOAD = bytes(
+    [0, 1, 0, 4, 4, 3, 0, 1, 5] +
+    [1, 0, 4, 0, 1, 2, 5, 5, 1] +
+    [2, 5, 4, 1, 3, 5, 2, 5, 0] +
+    [3, 4, 3, 4, 2, 0, 5, 2, 2] +
+    [4, 3, 1, 3, 0, 3, 1, 0, 5] +
+    [5, 2, 3, 2, 4, 1, 3, 4, 2] +
+    [6, 6, 9, 3, 0, 3]              # six trailing bytes, purpose unknown
+)
+HARDWARE_STATE_MOVES = "B D U' F B' L B' F B'".split()
+
+
+def test_gocube_state_matches_the_hardware_capture():
+    from kubik.cube import Cube
+
+    driver = GoCube(FakeNus())
+    states = []
+    driver.connect("state", lambda _d, facelets: states.append(list(facelets)))
+    driver._on_data(_gocube_frame(gocube.MSG_STATE, HARDWARE_STATE_PAYLOAD))
+    assert len(states) == 1
+    assert Cube.from_facelets(states[0]) == Cube().apply(HARDWARE_STATE_MOVES)
+
+
+def test_gocube_state_puts_the_centre_first_then_a_ring():
+    """The layout is not row-major, and getting it wrong still yields a
+    plausible-looking cube — so pin the shape explicitly."""
+    assert gocube._RING == (0, 1, 2, 5, 8, 7, 6, 3)
+    # Flattened into the net, U and D come out rotated a quarter turn each.
+    assert gocube._RING_START[0] == 6      # U
+    assert gocube._RING_START[3] == 2      # D
+    for face in (1, 2, 4, 5):              # R, F, L, B line up
+        assert gocube._RING_START[face] == 0
+
+
+def test_gocube_state_of_a_solved_cube_is_solved():
+    from kubik.cube import Cube
+
+    driver = GoCube(FakeNus())
+    states = []
+    driver.connect("state", lambda _d, facelets: states.append(list(facelets)))
+    payload = bytes(colour for colour in range(6) for _ in range(9)) + bytes(6)
+    driver._on_data(_gocube_frame(gocube.MSG_STATE, payload))
+    assert Cube.from_facelets(states[0]).is_solved()
+
+
+def test_gocube_requests_only_the_commands_that_were_identified():
+    peripheral = FakeNus()
+    driver = GoCube(peripheral)
+    driver.request_state()
+    sent = [data[0] for _uuid, data in peripheral.written]
+    assert sent == [0x33, 0x32]
+    # 0x35 answers, but left the cube reporting solved while scrambled.
+    assert 0x35 not in sent

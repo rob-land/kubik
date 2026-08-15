@@ -43,6 +43,18 @@ _COLOR_TO_FACE = {0: 5, 1: 2, 2: 0, 3: 3, 4: 1, 5: 4}
 #: GoCube reports its 54 stickers face by face in B F U D R L order.
 _FACE_ORDER = [5, 2, 0, 3, 1, 4]
 
+#: Within a face the centre comes first, then the eight ring stickers
+#: clockwise — not the row-major order the net is drawn in. Expressed as
+#: row-major positions, the ring is:
+_RING = (0, 1, 2, 5, 8, 7, 6, 3)
+
+#: The cube walks each ring from its own reference corner. Flattened into the
+#: net, the four side faces line up but U and D come out rotated a quarter
+#: turn each, so they start two steps round the ring in opposite directions.
+#: Solved against a Rubik's Connected X: a solved cube cannot show any of
+#: this, because every self-consistent relabelling decodes solved as solved.
+_RING_START = {0: 6, 1: 0, 2: 0, 3: 2, 4: 0, 5: 0}
+
 
 @register
 class GoCube(CubeDriver):
@@ -62,9 +74,19 @@ class GoCube(CubeDriver):
         self.peripheral.subscribe(self.notify_uuid, self._on_data)
         self.request_state()
 
+    #: Single-byte requests, confirmed against a Rubik's Connected X.
+    #: 0x33 answers with a state message (type 0x02, 54 facelets plus six
+    #: trailing bytes) and 0x32 with battery (type 0x05). 0x37 draws no
+    #: response. 0x35 also answers with a state message but is *not* sent:
+    #: after a run that ended with it, the cube reported a solved state while
+    #: physically scrambled, so it plausibly resets the cube's tracking.
+    #: Nothing here needs it, and sending an unidentified command that may
+    #: wipe a solve in progress is not a trade worth making.
+    REQUEST_STATE = 0x33
+    REQUEST_BATTERY = 0x32
+
     def request_state(self):
-        # Single-byte commands: 0x32 state, 0x33 battery, 0x35 cube type.
-        for command in (0x32, 0x33, 0x35):
+        for command in (self.REQUEST_STATE, self.REQUEST_BATTERY):
             self.peripheral.write(self.write_uuid, bytes([command]))
 
     # -- framing ---------------------------------------------------------
@@ -102,25 +124,23 @@ class GoCube(CubeDriver):
             code = payload[0]
             if code >> 1 < len(_FACES):
                 self.emit_move(_FACES[code >> 1], 3 if code & 1 else 1)
-        elif kind == MSG_STATE:
-            # `CubeUtilities.CubeTypeFromFullStateMessage` in the 2x2 build
-            # tells the puzzle apart by how long this payload is: nine
-            # stickers per face, or four.
-            for stickers in (9, 4):
-                if len(payload) >= 6 * stickers:
-                    self._emit_state(payload, stickers)
-                    break
+        elif kind == MSG_STATE and len(payload) >= 54:
+            self._emit_state(payload)
         elif kind == MSG_BATTERY and payload:
             self.emit("battery", payload[0])
         elif kind == MSG_CUBE_TYPE and payload:
             self.emit("hardware", f"GoCube type 0x{payload[0]:02x}")
 
-    def _emit_state(self, payload: bytes, stickers: int = 9):
-        facelets = [0] * (6 * stickers)
-        for slot, face in enumerate(_FACE_ORDER):
-            for i in range(stickers):
-                colour = payload[slot * stickers + i]
-                facelets[face * stickers + i] = _COLOR_TO_FACE.get(colour, 0)
+    def _emit_state(self, payload: bytes):
+        facelets = [0] * 54
+        for group, face in enumerate(_FACE_ORDER):
+            base = group * 9
+            facelets[face * 9 + 4] = _COLOR_TO_FACE.get(payload[base], 0)
+            start = _RING_START[face]
+            for step in range(8):
+                position = _RING[(start + step) % 8]
+                colour = payload[base + 1 + step]
+                facelets[face * 9 + position] = _COLOR_TO_FACE.get(colour, 0)
         self.emit("state", facelets)
 
 
@@ -137,4 +157,9 @@ class GoCube2x2(GoCube):
     label = "GoCube 2x2"
     name_prefixes = ("GoCube2", "GC2")
     cube_type = "2x2"
-    reports_state = True
+    # Moves only. The 3x3's state payload turned out to be centre-first then a
+    # clockwise ring, with U and D rotated a quarter turn — none of which is
+    # guessable, and none of which a 2x2 (no centres) can share. Rather than
+    # emit a state decoded on an assumption, this family reports turns and the
+    # session tracks from a sync.
+    reports_state = False

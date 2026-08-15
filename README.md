@@ -49,15 +49,16 @@ Everything is local. No account, no network access, no store.
 |---|---|---|
 | GAN Gen4 | GAN12 ui Maglev, GAN14 ui, i carry E / 4, GAN12 ui SP, GAN 251 | Moves, state, battery — **verified on hardware** |
 | GAN Gen2 | GAN356 i / i2 / i Play / i3, GAN12 ui, GAN mini ui FreePlay, GAN i carry S | Moves, state, battery, hardware |
-| GoCube / Rubik's Connected | GoCube, GoCube Edge, Rubik's Connected | Moves, state, battery |
-| GoCube 2×2 | GoCube 2×2 | Moves, state, battery |
+| GoCube / Rubik's Connected | GoCube, GoCube Edge, Rubik's Connected X | Moves, state, battery — **verified on hardware** |
+| GoCube 2×2 | GoCube 2×2 | Moves, battery |
 | Giiker | Giiker i3, Xiaomi Mi Smart Magic Cube | Moves |
 | GAN Gen3 | GAN i carry 2 | Detected and connects; packet format not decoded |
 
-GAN Gen4 was reverse engineered against a real GAN i Carry 4; two captures
-from it ship as test fixtures, including a 254-turn session that starts and
-ends solved. The other drivers have not met their hardware — they are tested
-up to the radio and may need a fix on first contact. See
+GAN Gen4 and the Particula family were reverse engineered against a real GAN
+i Carry 4 and a Rubik's Connected X; captures from both ship as test fixtures,
+including a 254-turn GAN session that starts and ends solved. GAN Gen2, Giiker
+and the GoCube 2×2 have not met their hardware — they are tested up to the
+radio and may need a fix on first contact. See
 [`docs/teardown.md`](docs/teardown.md).
 
 ## Tech stack

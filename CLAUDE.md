@@ -105,7 +105,17 @@ packages.
 - **GAN Gen4 uses key index 0** — the Gen2 key/IV pair — and `fff6` notifies
   while `fff5` takes writes. Both contradict what is usually documented; both
   were confirmed against hardware.
-- Only GAN Gen4 has been tested against a real cube. The other drivers are
-  tested up to the radio and may need a fix on first contact.
+- **A solved cube validates nothing about a state decoder.** Every
+  self-consistent relabelling of faces, colours and sticker positions decodes
+  solved as solved. Both GAN Gen4 and GoCube looked perfect on a solved cube
+  and were wrong; only a scrambled capture with a known move sequence found
+  it. Test state decoding against scrambled fixtures.
+- **GoCube state is centre-first, then a clockwise ring** — not row-major —
+  with U and D rotated a quarter turn in the net. Do not "simplify" it.
+- **Do not send GoCube `0x35`.** It answers with a state message, but a run
+  ending with it left the cube reporting solved while physically scrambled, so
+  it plausibly resets the cube's tracking.
+- GAN Gen4 and the Particula 3×3s have been tested against real cubes. GAN
+  Gen2, Giiker and the GoCube 2×2 are tested up to the radio only.
 - Don't block the GTK main loop. There is no worker thread here by design —
   BlueZ is GLib-native, so callbacks already arrive on the main loop.

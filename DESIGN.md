@@ -158,3 +158,27 @@ worth remembering as a class:
 
 The last one is the reason `Central.start_discovery` deliberately does not
 filter, and matching happens on the advertised name instead.
+
+The Rubik's Connected X repeated the lesson in a different costume. Everything
+reconstructed from the IL2CPP metadata was right first time — the UUIDs, the
+`0x2A`/length/type/payload/checksum/CRLF framing, the checksum formula, the
+`B F U D R L` move codes with the low bit for anticlockwise. Fifty-two
+recorded turns replayed a model cube back to solved on the first attempt.
+
+What was wrong was the one thing the metadata only named rather than valued:
+the state message's sticker order. It is **centre first, then the eight ring
+stickers clockwise**, with U and D rotated a quarter turn once flattened into
+the net — not the row-major order the net is drawn in.
+
+Two solved-cube readings had already looked perfect and told me nothing, which
+is the general lesson: **a solved cube cannot validate a state decoder**, since
+every self-consistent relabelling of faces, colours and positions decodes
+solved as solved. The bug only surfaced on a scrambled cube, and was confirmed
+by reading the state, watching 62 turns, reading again, and checking the two
+agreed.
+
+The command bytes were guesses too, and two of three were wrong: `0x33` reads
+state and `0x32` reads battery, the reverse of the assumption. `0x35` also
+answers with a state message but is no longer sent — the run that ended with it
+left the cube reporting solved while physically scrambled, so it plausibly
+resets the cube's tracking, and nothing here needs it.

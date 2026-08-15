@@ -206,7 +206,37 @@ decode to legal cubes; and the states the cube reports agree with the states
 implied by the moves it reported making, at every step. A second capture from a
 different day and a different starting state decodes with the same tables.
 
-### 2.4 Coverage matrix
+### 2.4 Particula, from hardware
+
+A Rubik's Connected X (`RubiksX_305901`) confirmed the framing reconstructed
+above from `GoCubeParser`'s field *names* — every detail of it, first time:
+the `6e400001…dcca9e` service with write on `…0002` and notify on `…0003`, the
+`0x2A` prefix, the length byte, the type byte, the one-byte checksum over
+everything preceding it, and the `0x0D 0x0A` suffix. Zero checksum failures in
+52 frames. Move codes are the face in `B F U D R L` order at `code >> 1` with
+the low bit set for anticlockwise; 52 recorded turns replayed a model cube
+back to solved.
+
+Unlike the GAN, it advertises its service UUID, and nothing is encrypted.
+
+What the metadata could *not* give was the state message's layout, since the
+identifiers name fields but not values. It is:
+
+```
+2A 40 02 <centre + 8 ring stickers, per face, B F U D R L> <6 bytes> <ck> 0D 0A
+```
+
+— 54 facelets plus six trailing bytes of unknown purpose (`06 06 09 03 00 03`
+on one sample, all zero on a solved cube). Within a face the **centre comes
+first**, then the ring **clockwise**; flattened into the net, U and D come out
+rotated a quarter turn relative to the four side faces.
+
+Single-byte requests: `0x33` returns state, `0x32` returns battery, `0x37`
+draws no response. `0x35` also returns a state message, but a session ending
+with it left the cube reporting solved while physically scrambled — so it
+plausibly resets the cube's tracking and is not sent.
+
+### 2.5 Coverage matrix
 
 | Cube family | GoCube | Rubik's Connected | GoCube 2×2 | CubeStation |
 |---|---|---|---|---|
